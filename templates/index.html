@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DRL Movie Recommender</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-grad: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --primary: #00ffcc;
+            --danger: #ff4757;
+            --text-main: #f1f2f6;
+            --text-muted: #a4b0be;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-grad);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .container {
+            display: flex;
+            width: 90%;
+            max-width: 1100px;
+            height: 80vh;
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            overflow: hidden;
+            animation: fadeIn 0.8s ease-out forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 30%;
+            padding: 2rem;
+            background: rgba(0, 0, 0, 0.2);
+            border-right: 1px solid var(--glass-border);
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .sidebar h2 { margin: 0; font-weight: 600; font-size: 1.5rem; color: var(--primary); }
+        
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        label { font-size: 0.9rem; color: var(--text-muted); }
+
+        select, input {
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: white;
+            padding: 10px;
+            border-radius: 8px;
+            outline: none;
+            font-family: 'Inter', sans-serif;
+            transition: 0.3s;
+        }
+
+        select:focus, input:focus { border-color: var(--primary); }
+        select option { background: #203a43; color: white; }
+
+        .btn-add {
+            background: transparent;
+            color: var(--primary);
+            border: 1px solid var(--primary);
+            padding: 8px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.3s;
+            margin-top: 5px;
+        }
+        .btn-add:hover { background: var(--primary); color: #000; }
+
+        .preferences {
+            flex-grow: 1;
+            background: rgba(255,255,255,0.05);
+            border-radius: 10px;
+            padding: 1rem;
+            overflow-y: auto;
+            font-size: 0.85rem;
+        }
+        .preferences h3 { margin-top: 0; font-size: 1rem; color: #fff; }
+        .pref-item { display: flex; justify-content: space-between; margin-bottom: 5px; }
+
+        /* Main Content */
+        .main {
+            flex-grow: 1;
+            padding: 3rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .movie-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 2rem;
+            width: 100%;
+            max-width: 450px;
+            text-align: center;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .movie-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+        }
+
+        .movie-poster {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+            background: #1e272e;
+        }
+
+        .movie-title { font-size: 1.8rem; margin: 0 0 0.5rem 0; font-weight: 600; }
+        .movie-meta { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1rem; }
+        .movie-plot { font-size: 0.9rem; line-height: 1.5; color: #ced6e0; margin-bottom: 2rem; }
+
+        .actions {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 30px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .btn-like { background: var(--primary); color: #000; box-shadow: 0 4px 15px rgba(0, 255, 204, 0.3); }
+        .btn-like:hover { transform: scale(1.05); box-shadow: 0 6px 20px rgba(0, 255, 204, 0.5); }
+
+        .btn-dislike { background: transparent; color: var(--danger); border: 2px solid var(--danger); }
+        .btn-dislike:hover { background: var(--danger); color: #fff; transform: scale(1.05); }
+
+        .stats {
+            position: absolute;
+            top: 2rem;
+            right: 3rem;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            background: rgba(0,0,0,0.3);
+            padding: 10px 15px;
+            border-radius: 20px;
+            border: 1px solid var(--glass-border);
+        }
+
+        .loading {
+            display: none;
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 1.2rem;
+            color: var(--primary);
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="sidebar">
+        <h2>電影推薦 DQN</h2>
+        
+        <div class="control-group">
+            <label>使用者 (User)</label>
+            <select id="userSelect" onchange="fetchRecommendation()"></select>
+            <div style="display:flex; gap: 5px;">
+                <input type="text" id="newUserInput" placeholder="新增使用者..." style="flex-grow:1;">
+                <button class="btn-add" onclick="addUser()">新增</button>
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label>電影年份 (Year)</label>
+            <select id="yearSelect" onchange="fetchRecommendation()">
+                <option value="All">全部年份 (All)</option>
+            </select>
+        </div>
+
+        <div class="control-group">
+            <label>電影類型 (Genre)</label>
+            <select id="genreSelect" onchange="fetchRecommendation()">
+                <option value="All">全部類型 (All)</option>
+            </select>
+        </div>
+
+        <div class="preferences">
+            <h3>目前偏好 (State Vector)</h3>
+            <div id="prefList">尚未產生偏好</div>
+        </div>
+    </div>
+
+    <div class="main">
+        <div class="stats" id="statsBox">探索率 (Epsilon): 1.0</div>
+        <div class="loading" id="loading">✨ AI 正在思考中...</div>
+
+        <div class="movie-card" id="movieCard">
+            <img id="mPoster" class="movie-poster" src="" alt="Poster" onerror="this.src='https://via.placeholder.com/400x250?text=No+Poster'">
+            <h1 class="movie-title" id="mTitle">Movie Title</h1>
+            <div class="movie-meta">
+                <span id="mYear">2020</span> • <span id="mGenre">Sci-Fi</span>
+            </div>
+            <p class="movie-plot" id="mPlot">This is a short plot description about the movie.</p>
+            
+            <div class="actions">
+                <button class="btn btn-dislike" onclick="sendFeedback(0)">不喜歡 (Skip)</button>
+                <button class="btn btn-like" onclick="sendFeedback(1)">喜歡 (Like)</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let currentMovieId = null;
+
+    async function initData() {
+        const res = await fetch('/api/init_data');
+        const data = await res.json();
+        
+        const gSelect = document.getElementById('genreSelect');
+        data.genres.forEach(g => gSelect.add(new Option(g, g)));
+
+        const ySelect = document.getElementById('yearSelect');
+        data.years.forEach(y => ySelect.add(new Option(y, y)));
+
+        const uSelect = document.getElementById('userSelect');
+        if(data.users.length === 0) {
+            uSelect.add(new Option('Guest', 'Guest'));
+        } else {
+            data.users.forEach(u => uSelect.add(new Option(u, u)));
+        }
+
+        fetchRecommendation();
+    }
+
+    function addUser() {
+        const val = document.getElementById('newUserInput').value.trim();
+        if(val) {
+            const uSelect = document.getElementById('userSelect');
+            uSelect.add(new Option(val, val));
+            uSelect.value = val;
+            document.getElementById('newUserInput').value = '';
+            fetchRecommendation();
+        }
+    }
+
+    async function fetchRecommendation() {
+        document.getElementById('movieCard').style.display = 'none';
+        document.getElementById('loading').style.display = 'block';
+
+        const username = document.getElementById('userSelect').value;
+        const genre = document.getElementById('genreSelect').value;
+        const year = document.getElementById('yearSelect').value;
+
+        try {
+            const res = await fetch('/api/recommend', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({username, genre, year})
+            });
+
+            if(!res.ok) {
+                alert('找不到符合此條件的電影，請調整過濾器！');
+                document.getElementById('loading').style.display = 'none';
+                return;
+            }
+
+            const data = await res.json();
+            
+            // Update UI
+            currentMovieId = data.movie.id;
+            document.getElementById('mTitle').textContent = data.movie.title;
+            document.getElementById('mGenre').textContent = data.movie.genre;
+            document.getElementById('mYear').textContent = data.movie.year;
+            document.getElementById('mPlot').textContent = data.movie.plot || "無簡介";
+            document.getElementById('mPoster').src = data.movie.posterUrl || "";
+
+            document.getElementById('statsBox').textContent = `探索率 (Epsilon): ${data.epsilon}`;
+
+            // Update preferences
+            const pList = document.getElementById('prefList');
+            pList.innerHTML = '';
+            for(let [g, val] of Object.entries(data.preferences)) {
+                pList.innerHTML += `<div class="pref-item"><span>${g}</span> <span style="color:var(--primary)">${val}</span></div>`;
+            }
+            if(Object.keys(data.preferences).length === 0) pList.innerHTML = '<span style="color:gray">尚未產生偏好</span>';
+
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('movieCard').style.display = 'block';
+
+        } catch(e) {
+            console.error(e);
+            alert("Error fetching recommendation.");
+        }
+    }
+
+    async function sendFeedback(reward) {
+        const username = document.getElementById('userSelect').value;
+        if(currentMovieId === null) return;
+
+        await fetch('/api/feedback', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({username, movie_id: currentMovieId, reward})
+        });
+
+        fetchRecommendation();
+    }
+
+    window.onload = initData;
+</script>
+
+</body>
+</html>
