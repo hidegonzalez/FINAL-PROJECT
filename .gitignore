@@ -7,3 +7,16 @@ env/
 venv/
 movies.db
 *.log
+
+*.docx
+*.pptx
+*.pdf
+extracted_*.txt
+total_NEW_*.txt
+sim_input.txt
+final project20260609.md
+FINAL Project 初稿- NotebookLM - 2026-06-06.md
+與chatgpt構思對話紀錄.md
+interactive_drl_recommender.py
+extractor.py
+error.png

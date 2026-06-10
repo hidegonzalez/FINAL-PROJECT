@@ -30,9 +30,9 @@
 
         .container {
             display: flex;
-            width: 90%;
-            max-width: 1100px;
-            height: 80vh;
+            width: 95%;
+            max-width: 1400px;
+            height: 90vh;
             background: var(--glass-bg);
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
@@ -50,13 +50,14 @@
 
         /* Sidebar */
         .sidebar {
-            width: 30%;
+            width: 300px;
             padding: 2rem;
             background: rgba(0, 0, 0, 0.2);
             border-right: 1px solid var(--glass-border);
             display: flex;
             flex-direction: column;
             gap: 1.5rem;
+            flex-shrink: 0;
         }
 
         .sidebar h2 { margin: 0; font-weight: 600; font-size: 1.5rem; color: var(--primary); }
@@ -83,7 +84,7 @@
         select:focus, input:focus { border-color: var(--primary); }
         select option { background: #203a43; color: white; }
 
-        .btn-add {
+        .btn-add, .btn-refresh {
             background: transparent;
             color: var(--primary);
             border: 1px solid var(--primary);
@@ -92,8 +93,9 @@
             cursor: pointer;
             transition: 0.3s;
             margin-top: 5px;
+            width: 100%;
         }
-        .btn-add:hover { background: var(--primary); color: #000; }
+        .btn-add:hover, .btn-refresh:hover { background: var(--primary); color: #000; }
 
         .preferences {
             flex-grow: 1;
@@ -109,68 +111,23 @@
         /* Main Content */
         .main {
             flex-grow: 1;
-            padding: 3rem;
+            padding: 2rem;
             display: flex;
             flex-direction: column;
-            align-items: center;
-            justify-content: center;
             position: relative;
+            overflow-y: auto;
         }
-
-        .movie-card {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid var(--glass-border);
-            border-radius: 16px;
-            padding: 2rem;
-            width: 100%;
-            max-width: 450px;
-            text-align: center;
-            transition: transform 0.3s, box-shadow 0.3s;
-        }
-        .movie-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
-        }
-
-        .movie-poster {
-            width: 100%;
-            height: 250px;
-            object-fit: cover;
-            border-radius: 12px;
-            margin-bottom: 1.5rem;
-            background: #1e272e;
-        }
-
-        .movie-title { font-size: 1.8rem; margin: 0 0 0.5rem 0; font-weight: 600; }
-        .movie-meta { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1rem; }
-        .movie-plot { font-size: 0.9rem; line-height: 1.5; color: #ced6e0; margin-bottom: 2rem; }
-
-        .actions {
+        
+        .header-area {
             display: flex;
-            justify-content: center;
-            gap: 1.5rem;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
         }
-
-        .btn {
-            padding: 12px 30px;
-            border: none;
-            border-radius: 30px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: 0.3s;
-        }
-
-        .btn-like { background: var(--primary); color: #000; box-shadow: 0 4px 15px rgba(0, 255, 204, 0.3); }
-        .btn-like:hover { transform: scale(1.05); box-shadow: 0 6px 20px rgba(0, 255, 204, 0.5); }
-
-        .btn-dislike { background: transparent; color: var(--danger); border: 2px solid var(--danger); }
-        .btn-dislike:hover { background: var(--danger); color: #fff; transform: scale(1.05); }
+        
+        .header-area h3 { margin: 0; }
 
         .stats {
-            position: absolute;
-            top: 2rem;
-            right: 3rem;
             font-size: 0.85rem;
             color: var(--text-muted);
             background: rgba(0,0,0,0.3);
@@ -181,11 +138,82 @@
 
         .loading {
             display: none;
-            position: absolute;
-            top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
+            text-align: center;
+            padding: 3rem;
             font-size: 1.2rem;
             color: var(--primary);
+        }
+        
+        .notice {
+            background: rgba(0, 255, 204, 0.1);
+            border-left: 4px solid var(--primary);
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: 4px;
+            display: none;
+        }
+
+        .movies-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 1.5rem;
+            padding-bottom: 2rem;
+        }
+
+        .movie-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 1rem;
+            text-align: center;
+            transition: transform 0.3s, box-shadow 0.3s;
+            display: flex;
+            flex-direction: column;
+        }
+        .movie-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+        }
+
+        .movie-poster {
+            width: 100%;
+            height: 280px;
+            object-fit: cover;
+            border-radius: 12px;
+            margin-bottom: 1rem;
+            background: #1e272e;
+        }
+
+        .movie-title { font-size: 1.1rem; margin: 0 0 0.5rem 0; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .movie-meta { color: var(--text-muted); font-size: 0.8rem; margin-bottom: 1rem; }
+
+        .actions {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-top: auto;
+        }
+
+        .btn {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+            flex: 1;
+        }
+
+        .btn-like { background: var(--primary); color: #000; }
+        .btn-like:hover { transform: scale(1.05); }
+
+        .btn-dislike { background: transparent; color: var(--danger); border: 1px solid var(--danger); }
+        .btn-dislike:hover { background: var(--danger); color: #fff; }
+        
+        .card-disabled {
+            opacity: 0.5;
+            pointer-events: none;
         }
     </style>
 </head>
@@ -196,11 +224,23 @@
         <h2>電影推薦 DQN</h2>
         
         <div class="control-group">
+            <label>資料庫擴充</label>
+            <div style="display: flex; gap: 5px;">
+                <input type="number" id="downloadCount" value="50" min="10" max="500" style="width: 70px; padding: 5px; border-radius: 5px; border: 1px solid rgba(255,255,255,0.2); background: rgba(0,0,0,0.5); color: #fff;" title="下載數量">
+                <button class="btn-add" onclick="updateDatabase()" style="flex: 1; margin: 0; background: var(--primary); color: #000; border-radius: 5px;">⬇️ 下載新電影</button>
+            </div>
+        </div>
+
+        <div class="control-group">
             <label>使用者 (User)</label>
             <select id="userSelect" onchange="fetchRecommendation()"></select>
             <div style="display:flex; gap: 5px;">
                 <input type="text" id="newUserInput" placeholder="新增使用者..." style="flex-grow:1;">
-                <button class="btn-add" onclick="addUser()">新增</button>
+                <button class="btn-add" onclick="addUser()" style="margin:0; width:auto;">新增</button>
+            </div>
+            <div style="margin-top: 10px; display: flex; flex-direction: column; gap: 5px;">
+                <button class="btn btn-dislike" style="width: 100%; padding: 5px; font-size: 0.85rem;" onclick="clearLearningData()">🗑️ 清除當前使用者的學習資料</button>
+                <button class="btn btn-dislike" style="width: 100%; padding: 5px; font-size: 0.85rem; border-color: #ff4444; color: #ff4444;" onclick="deleteUser()">❌ 刪除使用者</button>
             </div>
         </div>
 
@@ -217,6 +257,8 @@
                 <option value="All">全部類型 (All)</option>
             </select>
         </div>
+        
+        <button class="btn-refresh" onclick="fetchRecommendation()">重新產生推薦 (Refresh)</button>
 
         <div class="preferences">
             <h3>目前偏好 (State Vector)</h3>
@@ -225,44 +267,147 @@
     </div>
 
     <div class="main">
-        <div class="stats" id="statsBox">探索率 (Epsilon): 1.0</div>
-        <div class="loading" id="loading">✨ AI 正在思考中...</div>
+        <div class="header-area">
+            <h3 id="roundTitle">為您推薦</h3>
+            <div class="stats" id="statsBox">探索率 (Epsilon): 1.0</div>
+        </div>
+        
+        <div id="firstTimeNotice" class="notice">
+            <strong>🚀 新手上路學習：</strong> 這是您第一次使用，我們從各種類型中挑選了多部電影，請按下喜歡或跳過，讓 AI 代理人學習您的偏好！完成後可以點擊左側「重新產生推薦」。
+        </div>
+        
+        <div id="fallbackNotice" class="notice" style="background: rgba(255, 165, 0, 0.1); border-left-color: orange;">
+            <!-- Fallback message injected here -->
+        </div>
+        
+        <div class="loading" id="loading">✨ AI 正在為您計算最佳推薦...</div>
 
-        <div class="movie-card" id="movieCard">
-            <img id="mPoster" class="movie-poster" src="" alt="Poster" onerror="this.src='https://via.placeholder.com/400x250?text=No+Poster'">
-            <h1 class="movie-title" id="mTitle">Movie Title</h1>
-            <div class="movie-meta">
-                <span id="mYear">2020</span> • <span id="mGenre">Sci-Fi</span>
-            </div>
-            <p class="movie-plot" id="mPlot">This is a short plot description about the movie.</p>
-            
-            <div class="actions">
-                <button class="btn btn-dislike" onclick="sendFeedback(0)">不喜歡 (Skip)</button>
-                <button class="btn btn-like" onclick="sendFeedback(1)">喜歡 (Like)</button>
-            </div>
+        <div class="movies-grid" id="moviesGrid">
+            <!-- Movies will be injected here -->
+        </div>
+    </div>
+</div>
+
+<!-- Top 3 Recommendations Modal -->
+<div id="top3Modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:999; justify-content:center; align-items:center; backdrop-filter: blur(5px);">
+    <div style="background:var(--bg-grad); padding:2rem; border-radius:20px; border:1px solid var(--primary); text-align:center; max-width:900px; width:90%; max-height: 90vh; overflow-y: auto; display: flex; flex-direction: column; box-shadow: 0 10px 40px rgba(0,0,0,0.8); animation: fadeIn 0.5s ease-out;">
+        <h2 style="color:var(--primary); margin-top:0; font-size: 2rem; flex-shrink: 0;">🏆 終極推薦：為您精選前 3 名 🏆</h2>
+        <p id="top3Reason" style="color:var(--text-main); margin-bottom:1.5rem; font-size:1.1rem; flex-shrink: 0;"></p>
+        <div class="movies-grid" id="top3Grid" style="justify-content:center; display:flex; flex-wrap: wrap; gap:1.5rem; padding: 1rem 0; overflow-y: auto;"></div>
+        <div style="flex-shrink: 0; margin-top: 1rem;">
+            <button class="btn btn-like" onclick="document.getElementById('top3Modal').style.display='none'; fetchRecommendation();" style="font-size:1.1rem; padding: 15px 40px;">繼續探索新電影</button>
         </div>
     </div>
 </div>
 
 <script>
-    let currentMovieId = null;
+    let sessionFeedbacks = [];
+    let allSessionRatedMovies = [];
+    let allSessionSkippedMovies = [];
+    
+    async function updateDatabase() {
+        const count = document.getElementById('downloadCount').value;
+        if(!confirm(`確定要從 TMDB 下載 ${count} 部全新的電影至本地資料庫嗎？\n這可能需要幾十秒的時間來抓取導演與演員資料。`)) return;
+        
+        document.getElementById('loading').style.display = 'block';
+        document.getElementById('loading').textContent = `✨ 正在為您擴充資料庫 (${count} 部)... 請稍候`;
+        
+        try {
+            const res = await fetch('/api/update_db', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({count: parseInt(count)})
+            });
+            const data = await res.json();
+            alert(data.message);
+            
+            // Reload filters to include new genres/years
+            await initData();
+            document.getElementById('loading').textContent = `✨ AI 正在為您計算最佳推薦...`;
+            fetchRecommendation();
+        } catch(e) {
+            console.error(e);
+            alert("更新資料庫失敗！");
+            document.getElementById('loading').style.display = 'none';
+        }
+    }
+    
+    async function clearLearningData() {
+        const username = document.getElementById('userSelect').value;
+        if (!confirm(`確定要清除使用者「${username}」的所有學習資料嗎？\n這將會重置 AI 代理人對您的偏好預測，且無法復原！`)) {
+            return;
+        }
+        
+        try {
+            const res = await fetch('/api/clear_state', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({username})
+            });
+            const data = await res.json();
+            alert(data.message);
+            
+            // Reload recommendations
+            allSessionRatedMovies = [];
+            allSessionSkippedMovies = [];
+            fetchRecommendation();
+        } catch(e) {
+            console.error(e);
+            alert("清除學習資料失敗！");
+        }
+    }
+    
+    async function deleteUser() {
+        const username = document.getElementById('userSelect').value;
+        if (username === 'Guest' || username === '訪客 (Guest)') {
+            alert('不能刪除預設訪客 (Guest)！');
+            return;
+        }
+        
+        if (!confirm(`確定要徹底刪除使用者「${username}」嗎？\n此動作將無法復原！`)) {
+            return;
+        }
+        
+        try {
+            const res = await fetch('/api/delete_user', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({username})
+            });
+            const data = await res.json();
+            alert(data.message);
+            
+            if (res.ok) {
+                await initData();
+                document.getElementById('userSelect').value = 'Guest';
+                fetchRecommendation();
+            }
+        } catch(e) {
+            console.error(e);
+            alert("刪除使用者失敗！");
+        }
+    }
 
     async function initData() {
         const res = await fetch('/api/init_data');
         const data = await res.json();
         
         const gSelect = document.getElementById('genreSelect');
+        gSelect.innerHTML = '<option value="All">全部類型 (All)</option>';
         data.genres.forEach(g => gSelect.add(new Option(g, g)));
 
         const ySelect = document.getElementById('yearSelect');
+        ySelect.innerHTML = '<option value="All">全部年份 (All)</option>';
         data.years.forEach(y => ySelect.add(new Option(y, y)));
 
         const uSelect = document.getElementById('userSelect');
-        if(data.users.length === 0) {
-            uSelect.add(new Option('Guest', 'Guest'));
-        } else {
-            data.users.forEach(u => uSelect.add(new Option(u, u)));
-        }
+        uSelect.innerHTML = ''; // Clear existing
+        uSelect.add(new Option('訪客 (Guest)', 'Guest')); // Always provide a Guest option
+        data.users.forEach(u => {
+            if (u !== 'Guest') {
+                uSelect.add(new Option(u, u));
+            }
+        });
 
         fetchRecommendation();
     }
@@ -271,45 +416,66 @@
         const val = document.getElementById('newUserInput').value.trim();
         if(val) {
             const uSelect = document.getElementById('userSelect');
-            uSelect.add(new Option(val, val));
+            let exists = false;
+            for(let i=0; i<uSelect.options.length; i++){
+                if(uSelect.options[i].value === val) exists = true;
+            }
+            if(!exists) {
+                uSelect.add(new Option(val, val));
+            }
             uSelect.value = val;
             document.getElementById('newUserInput').value = '';
             fetchRecommendation();
         }
     }
 
+    let lastUser = '';
     async function fetchRecommendation() {
-        document.getElementById('movieCard').style.display = 'none';
+        document.getElementById('moviesGrid').innerHTML = '';
         document.getElementById('loading').style.display = 'block';
+        document.getElementById('firstTimeNotice').style.display = 'none';
 
         const username = document.getElementById('userSelect').value;
         const genre = document.getElementById('genreSelect').value;
         const year = document.getElementById('yearSelect').value;
+        
+        if (username !== lastUser) {
+            allSessionRatedMovies = [];
+            allSessionSkippedMovies = [];
+            lastUser = username;
+        }
 
         try {
             const res = await fetch('/api/recommend', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({username, genre, year})
+                body: JSON.stringify({username, genre, year, exclude_ids: allSessionRatedMovies})
             });
 
             if(!res.ok) {
-                alert('找不到符合此條件的電影，請調整過濾器！');
+                document.getElementById('moviesGrid').innerHTML = '<h3 style="color:var(--danger); grid-column:1/-1; text-align:center;">找不到符合此條件的電影，請調整左側過濾器！</h3>';
                 document.getElementById('loading').style.display = 'none';
                 return;
             }
 
             const data = await res.json();
             
-            // Update UI
-            currentMovieId = data.movie.id;
-            document.getElementById('mTitle').textContent = data.movie.title;
-            document.getElementById('mGenre').textContent = data.movie.genre;
-            document.getElementById('mYear').textContent = data.movie.year;
-            document.getElementById('mPlot').textContent = data.movie.plot || "無簡介";
-            document.getElementById('mPoster').src = data.movie.posterUrl || "";
-
             document.getElementById('statsBox').textContent = `探索率 (Epsilon): ${data.epsilon}`;
+            
+            if(data.is_first_time) {
+                document.getElementById('firstTimeNotice').style.display = 'block';
+                document.getElementById('roundTitle').textContent = "初始資料學習 (各類型隨機取樣)";
+            } else {
+                document.getElementById('firstTimeNotice').style.display = 'none';
+                document.getElementById('roundTitle').textContent = genre === 'All' ? "🎲 隨機探索推薦 (未選擇類型)" : "🤖 DQN 精準推薦 (依據您的學習資料)";
+            }
+            
+            if(data.notice) {
+                document.getElementById('fallbackNotice').style.display = 'block';
+                document.getElementById('fallbackNotice').innerHTML = `<strong>⚠️ 補充推薦：</strong> ${data.notice}`;
+            } else {
+                document.getElementById('fallbackNotice').style.display = 'none';
+            }
 
             // Update preferences
             const pList = document.getElementById('prefList');
@@ -319,26 +485,125 @@
             }
             if(Object.keys(data.preferences).length === 0) pList.innerHTML = '<span style="color:gray">尚未產生偏好</span>';
 
+            // Render movies
+            const grid = document.getElementById('moviesGrid');
+            data.movies.forEach(m => {
+                const card = document.createElement('div');
+                card.className = 'movie-card';
+                card.id = `movie-${m.id}`;
+                card.innerHTML = `
+                    <img class="movie-poster" src="${m.posterUrl}" onerror="this.src='https://via.placeholder.com/220x280?text=No+Poster'">
+                    <h1 class="movie-title" title="${m.title}">${m.title}</h1>
+                    <div class="movie-meta">
+                        <span>${m.year}</span> • <span>${m.genre}</span>
+                        <div style="margin-top: 8px; font-size: 0.75rem; text-align: left; background: rgba(0,0,0,0.2); padding: 5px; border-radius: 5px;">
+                            🎬 導演: ${m.director} <br>
+                            🎭 演員: ${m.actors}
+                        </div>
+                    </div>
+                    <div class="actions">
+                        <button class="btn btn-dislike" onclick="sendFeedback(${m.id}, 0)">跳過 (Skip)</button>
+                        <button class="btn btn-like" onclick="sendFeedback(${m.id}, 1)">喜歡 (Like)</button>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+            
+            sessionFeedbacks = []; // Reset counter on new fetch
             document.getElementById('loading').style.display = 'none';
-            document.getElementById('movieCard').style.display = 'block';
 
         } catch(e) {
             console.error(e);
             alert("Error fetching recommendation.");
+            document.getElementById('loading').style.display = 'none';
         }
     }
 
-    async function sendFeedback(reward) {
+    async function sendFeedback(movieId, reward) {
         const username = document.getElementById('userSelect').value;
-        if(currentMovieId === null) return;
+        
+        // Disable the card visually
+        const card = document.getElementById(`movie-${movieId}`);
+        if(card) card.classList.add('card-disabled');
+        
+        sessionFeedbacks.push({id: movieId, reward: reward});
+        if (!allSessionRatedMovies.includes(movieId)) {
+            allSessionRatedMovies.push(movieId);
+        }
+        if (reward === 0 && !allSessionSkippedMovies.includes(movieId)) {
+            allSessionSkippedMovies.push(movieId);
+        }
 
-        await fetch('/api/feedback', {
+        const res = await fetch('/api/feedback', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({username, movie_id: currentMovieId, reward})
+            body: JSON.stringify({username, movie_id: movieId, reward})
         });
-
-        fetchRecommendation();
+        
+        const data = await res.json();
+        document.getElementById('statsBox').textContent = `探索率 (Epsilon): ${data.epsilon}`;
+        
+        if (sessionFeedbacks.length >= 10) {
+            fetchTop3();
+        }
+    }
+    
+    async function fetchTop3() {
+        const username = document.getElementById('userSelect').value;
+        const genre = document.getElementById('genreSelect').value;
+        const year = document.getElementById('yearSelect').value;
+        const feedbacks = sessionFeedbacks;
+        sessionFeedbacks = []; // reset immediately
+        
+        document.getElementById('loading').style.display = 'block';
+        document.getElementById('firstTimeNotice').style.display = 'none';
+        document.getElementById('fallbackNotice').style.display = 'none';
+        
+        try {
+            const res = await fetch('/api/top3', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({username, feedbacks, genre, year, skipped_ids: allSessionSkippedMovies})
+            });
+            const data = await res.json();
+            showTop3Modal(data);
+        } catch(e) {
+            console.error(e);
+            document.getElementById('loading').style.display = 'none';
+        }
+    }
+    
+    function showTop3Modal(data) {
+        document.getElementById('loading').style.display = 'none';
+        
+        let reasonStr = "根據您長期的歷史 DQN 偏好學習，為您帶來最佳推薦：";
+        if(data.preferred_genre || data.preferred_year) {
+            reasonStr = `觀察您今天的心情，優先為您鎖定了「${data.preferred_genre||''}」類型與「${data.preferred_year||''}」年份，並結合您的長期歷史偏好，為您強力推薦：`;
+        }
+        document.getElementById('top3Reason').textContent = reasonStr;
+        
+        const grid = document.getElementById('top3Grid');
+        grid.innerHTML = '';
+        data.movies.forEach((m, idx) => {
+            const card = document.createElement('div');
+            card.className = 'movie-card';
+            card.style.flex = '0 0 250px';
+            card.style.position = 'relative';
+            card.innerHTML = `
+                <div style="position:absolute; top:-15px; left:-15px; background:var(--primary); color:#000; width:45px; height:45px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:bold; font-size:1.3rem; box-shadow:0 4px 10px rgba(0,0,0,0.5); z-index:10;">#${idx+1}</div>
+                <img class="movie-poster" src="${m.posterUrl}" onerror="this.src='https://via.placeholder.com/220x280?text=No+Poster'">
+                <h1 class="movie-title" title="${m.title}">${m.title}</h1>
+                <div class="movie-meta">
+                    <span>${m.year}</span> • <span>${m.genre}</span>
+                </div>
+                <div style="margin-top: 15px;">
+                    <button style="width: 100%; padding: 10px; background: #4285F4; color: #fff; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 0.9rem; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'" onclick="window.open('https://www.google.com/search?q=' + encodeURIComponent('${m.title} ${m.year} 電影'), '_blank')">🔍 想看介紹</button>
+                </div>
+            `;
+            grid.appendChild(card);
+        });
+        
+        document.getElementById('top3Modal').style.display = 'flex';
     }
 
     window.onload = initData;
